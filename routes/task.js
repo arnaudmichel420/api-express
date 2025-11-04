@@ -93,7 +93,7 @@ router.get("/:taskId", async (req, res, next) => {
 router.post("/", async (req, res, next) => {
   try {
     const {
-      userId,
+      userId = req.user.id,
       done = false,
       title,
       description,

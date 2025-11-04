@@ -29,8 +29,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(logger);
 
 app.use("/auth", authRouter);
+app.use("/", indexRouter);
 app.use(authMiddleware);
 app.use("/api/tasks", taskRouter);
-app.use("/", indexRouter);
 
 module.exports = app;
