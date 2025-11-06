@@ -1,13 +1,14 @@
 const { Sequelize, DataTypes, Op } = require("sequelize");
 
 const sequelize = new Sequelize(
-  "mysql://root:ldL2s7DXCIDflpxAExPbfz37D0QA7L@127.0.0.1:3306/to-do-list?serverVersion=10.11.2-MariaDB&charset=utf8mb4",
+  process.env.DB_NAME,
+  process.env.DB_USERNAME,
+  process.env.DB_PASSWORD,
   {
+    host: process.env.DB_HOST,
     dialect: "mysql",
-    dialectModule: require("mysql2"),
-    logging: false,
   }
-); // Example for postgres
+);
 
 (async () => {
   try {
