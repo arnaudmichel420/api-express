@@ -5,10 +5,9 @@ const {
   sendError,
   sendServerError,
 } = require("../utils/response");
-const Users = require("../models/users");
+const { User } = require("../models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 router.post("/register", async (req, res, next) => {
   try {
@@ -22,21 +21,24 @@ router.post("/register", async (req, res, next) => {
       });
     }
 
-    const user = await Users.create({
+    const user = await User.create({
       firstName,
       lastName,
       password,
       email,
     });
 
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET_KEY, {
+      expiresIn: "2h",
+    });
+
     return sendSuccess({
       res,
       code: 201,
       message: "Utilisateur crée",
+      data: { token },
     });
   } catch (error) {
-    console.log(error);
-
     return sendServerError(res, error);
   }
 });
@@ -44,14 +46,6 @@ router.post("/register", async (req, res, next) => {
 router.post("/login", async (req, res, next) => {
   try {
     const { email, password } = req.body;
-
-    if (!emailRegex.test(email)) {
-      return sendError({
-        res,
-        message: "L'email n'est pas valide'",
-        code: 404,
-      });
-    }
 
     if (password !== undefined && password.length < 8) {
       return sendError({
@@ -61,7 +55,7 @@ router.post("/login", async (req, res, next) => {
       });
     }
 
-    const user = await Users.findOne({
+    const user = await User.findOne({
       where: { email },
     });
 
@@ -98,39 +92,42 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
-// router.post("/verify-token", async (req, res, next) => {
-//   try {
-//     const token = req.headers.authorization;
+router.get("/me", async (req, res, next) => {
+  try {
+    const token = req.headers.authorization;
 
-//     if (!token.startsWith("Bearer ")) {
-//       return sendError({
-//         res,
-//         message: "Token non valide",
-//         code: 401,
-//       });
-//     }
+    if (!token.startsWith("Bearer ")) {
+      return sendError({
+        res,
+        message: "Token non valide",
+        code: 401,
+      });
+    }
 
-//     jwt.verify(
-//       token.split(" ")[1],
-//       process.env.JWT_SECRET_KEY,
-//       (error, playload) => {
-//         if (error) {
-//           return sendError({
-//             res,
-//             message: "Token non valide",
-//             code: 401,
-//           });
-//         }
-//         return sendSuccess({
-//           res,
-//           message: "Token valide",
-//           code: 200,
-//         });
-//       }
-//     );
-//   } catch (error) {
-//     return sendServerError(res, error);
-//   }
-// });
+    jwt.verify(
+      token.split(" ")[1],
+      process.env.JWT_SECRET_KEY,
+      async (error, playload) => {
+        if (error) {
+          return sendError({
+            res,
+            message: "Token non valide",
+            code: 401,
+          });
+        }
+        const user = await User.findByPk(playload.id);
+
+        return sendSuccess({
+          res,
+          message: "Token valide",
+          code: 200,
+          data: user,
+        });
+      }
+    );
+  } catch (error) {
+    return sendServerError(res, error);
+  }
+});
 
 module.exports = router;

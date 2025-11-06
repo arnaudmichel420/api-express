@@ -6,8 +6,7 @@ const {
   sendServerError,
 } = require("../utils/response");
 const { parseDate } = require("../utils/date");
-const Task = require("../models/tasks");
-const User = require("../models/users");
+const { User, Task } = require("../models");
 const { Op } = require("sequelize");
 const toBool = require("../utils/bool");
 

@@ -9,7 +9,6 @@ const cors = require("cors");
 const logger = require("./middlewares/logger");
 const authMiddleware = require("./middlewares/authMiddleware");
 
-const indexRouter = require("./routes/index");
 const taskRouter = require("./routes/task");
 const authRouter = require("./routes/auth");
 
@@ -28,9 +27,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(logger);
 
-app.use("/auth", authRouter);
-app.use("/", indexRouter);
-app.use(authMiddleware);
-app.use("/api/tasks", taskRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/tasks", authMiddleware, taskRouter);
 
 module.exports = app;
