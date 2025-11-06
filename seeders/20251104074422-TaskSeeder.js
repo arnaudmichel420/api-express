@@ -10,17 +10,17 @@ module.exports = {
     for (let i = 0; i < 200; i++) {
       tasks.push({
         userId: faker.helpers.rangeToNumber({ min: 1, max: 50 }),
-        title: faker.lorem.words({ min: 1, max: 4}),
+        title: faker.lorem.words({ min: 1, max: 4 }),
         description: faker.lorem.paragraph(),
         done: faker.datatype.boolean(0.5),
         date: faker.date.future(),
       });
     }
 
-    await queryInterface.bulkInsert("Tasks", tasks, {});
+    await queryInterface.bulkInsert("tasks", tasks, {});
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete("Tasks", null, {});
+    await queryInterface.bulkDelete("tasks", null, {});
   },
 };
