@@ -1,4 +1,5 @@
 const path = require("path");
+require("dotenv");
 require("dotenv").config({ path: path.resolve(__dirname, "./.env.local") });
 const express = require("express");
 const log = require("morgan");
